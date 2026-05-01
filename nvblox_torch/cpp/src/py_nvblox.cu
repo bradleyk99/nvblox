@@ -10,6 +10,7 @@
  */
 
 #include "nvblox_torch/py_mapper.h"
+#include "nvblox_torch/py_multi_mapper.h"
 
 #include <torch/script.h>
 
@@ -115,6 +116,31 @@ TORCH_LIBRARY(pynvblox, m) {
       .def("set_projective_appearance_integrator_measurement_weight",
            &ProjectiveIntegratorParams::
                set_projective_appearance_integrator_measurement_weight);
+
+m.class_<FreespaceIntegratorParams>("FreespaceIntegratorParams")
+      .def(torch::init())
+      .def("get_max_tsdf_distance_for_occupancy_m",
+           &FreespaceIntegratorParams::get_max_tsdf_distance_for_occupancy_m)
+      .def("set_max_tsdf_distance_for_occupancy_m",
+           &FreespaceIntegratorParams::set_max_tsdf_distance_for_occupancy_m)
+      .def("get_max_unobserved_to_keep_consecutive_occupancy_ms",
+           &FreespaceIntegratorParams::
+               get_max_unobserved_to_keep_consecutive_occupancy_ms)
+      .def("set_max_unobserved_to_keep_consecutive_occupancy_ms",
+           &FreespaceIntegratorParams::
+               set_max_unobserved_to_keep_consecutive_occupancy_ms)
+      .def("get_min_duration_since_occupied_for_freespace_ms",
+           &FreespaceIntegratorParams::
+               get_min_duration_since_occupied_for_freespace_ms)
+      .def("set_min_duration_since_occupied_for_freespace_ms",
+           &FreespaceIntegratorParams::
+               set_min_duration_since_occupied_for_freespace_ms)
+      .def("get_min_consecutive_occupancy_duration_for_reset_ms",
+           &FreespaceIntegratorParams::
+               get_min_consecutive_occupancy_duration_for_reset_ms)
+      .def("set_min_consecutive_occupancy_duration_for_reset_ms",
+           &FreespaceIntegratorParams::
+               set_min_consecutive_occupancy_duration_for_reset_ms);
 
   m.class_<MeshIntegratorParams>("MeshIntegratorParams")
       .def(torch::init())
@@ -258,6 +284,10 @@ TORCH_LIBRARY(pynvblox, m) {
            &MapperParams::get_projective_integrator_params)
       .def("set_projective_integrator_params",
            &MapperParams::set_projective_integrator_params)
+      .def("get_freespace_integrator_params",                           // ← new
+           &MapperParams::get_freespace_integrator_params)               // ← new
+      .def("set_freespace_integrator_params",                           // ← new
+           &MapperParams::set_freespace_integrator_params)         
       .def("get_mesh_integrator_params",
            &MapperParams::get_mesh_integrator_params)
       .def("set_mesh_integrator_params",
@@ -350,6 +380,20 @@ TORCH_LIBRARY(pynvblox, m) {
       .def("get_primitives_type_list", &Scene::getPrimitiveTypesList)
       .def("create_dummy_map", &Scene::createDummyMap)
       .def("to_mapper", &Scene::toMapper);
+
+m.class_<MultiMapper>("MultiMapper")
+.def(torch::init<double, std::string, std::string,
+               c10::intrusive_ptr<MapperParams>>())
+.def("integrate_depth", &MultiMapper::integrateDepth)
+.def("integrate_color", &MultiMapper::integrateColor)
+.def("update_esdf", &MultiMapper::updateEsdf)
+.def("update_color_mesh", &MultiMapper::updateColorMesh)
+.def("decay_dynamic_occupancy", &MultiMapper::decayDynamicOccupancy)
+.def("decay_static_tsdf", &MultiMapper::decayStaticTsdf)
+.def("query_static_esdf", &MultiMapper::queryStaticEsdf)
+.def("query_dynamic_occupancy", &MultiMapper::queryDynamicOccupancy)
+.def("tsdf_layer", &MultiMapper::tsdf_layer)
+.def("color_layer", &MultiMapper::color_layer);
 }
 
 }  // namespace pynvblox

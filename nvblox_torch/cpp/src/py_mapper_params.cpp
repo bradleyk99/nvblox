@@ -396,6 +396,17 @@ void MapperParams::set_projective_integrator_params(
   params_->projective_integrator_params = *params->params_;
 }
 
+c10::intrusive_ptr<FreespaceIntegratorParams>
+MapperParams::get_freespace_integrator_params() const {
+  return c10::make_intrusive<FreespaceIntegratorParams>(
+      params_->freespace_integrator_params);
+}
+
+void MapperParams::set_freespace_integrator_params(
+    c10::intrusive_ptr<FreespaceIntegratorParams> params) {
+  params_->freespace_integrator_params = *params->params_;
+}
+
 c10::intrusive_ptr<MeshIntegratorParams>
 MapperParams::get_mesh_integrator_params() const {
   return c10::make_intrusive<MeshIntegratorParams>(

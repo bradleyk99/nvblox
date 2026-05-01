@@ -58,6 +58,50 @@ struct ProjectiveIntegratorParams : torch::CustomClassHolder {
   std::shared_ptr<nvblox::ProjectiveIntegratorParams> params_;
 };
 
+struct FreespaceIntegratorParams : torch::CustomClassHolder {
+ public:
+  FreespaceIntegratorParams()
+      : params_(std::make_shared<nvblox::FreespaceIntegratorParams>()) {}
+  FreespaceIntegratorParams(const nvblox::FreespaceIntegratorParams params)
+      : params_(std::make_shared<nvblox::FreespaceIntegratorParams>(params)) {}
+
+  double get_max_tsdf_distance_for_occupancy_m() const {
+    return static_cast<double>(params_->max_tsdf_distance_for_occupancy_m);
+  }
+  void set_max_tsdf_distance_for_occupancy_m(double value) {
+    params_->max_tsdf_distance_for_occupancy_m = static_cast<float>(value);
+  }
+
+  int64_t get_max_unobserved_to_keep_consecutive_occupancy_ms() const {
+    return static_cast<int64_t>(static_cast<nvblox::Time>(
+        params_->max_unobserved_to_keep_consecutive_occupancy_ms));
+  }
+  void set_max_unobserved_to_keep_consecutive_occupancy_ms(int64_t value) {
+    params_->max_unobserved_to_keep_consecutive_occupancy_ms =
+        static_cast<nvblox::Time>(value);
+  }
+
+  int64_t get_min_duration_since_occupied_for_freespace_ms() const {
+    return static_cast<int64_t>(static_cast<nvblox::Time>(
+        params_->min_duration_since_occupied_for_freespace_ms));
+  }
+  void set_min_duration_since_occupied_for_freespace_ms(int64_t value) {
+    params_->min_duration_since_occupied_for_freespace_ms =
+        static_cast<nvblox::Time>(value);
+  }
+
+  int64_t get_min_consecutive_occupancy_duration_for_reset_ms() const {
+    return static_cast<int64_t>(static_cast<nvblox::Time>(
+        params_->min_consecutive_occupancy_duration_for_reset_ms));
+  }
+  void set_min_consecutive_occupancy_duration_for_reset_ms(int64_t value) {
+    params_->min_consecutive_occupancy_duration_for_reset_ms =
+        static_cast<nvblox::Time>(value);
+  }
+
+  std::shared_ptr<nvblox::FreespaceIntegratorParams> params_;
+};
+
 struct MeshIntegratorParams : torch::CustomClassHolder {
   // Constructor
   MeshIntegratorParams()
@@ -224,6 +268,11 @@ struct MapperParams : torch::CustomClassHolder {
   get_projective_integrator_params() const;
   void set_projective_integrator_params(
       c10::intrusive_ptr<ProjectiveIntegratorParams> params);
+
+  c10::intrusive_ptr<FreespaceIntegratorParams>
+    get_freespace_integrator_params() const;
+    void set_freespace_integrator_params(
+        c10::intrusive_ptr<FreespaceIntegratorParams> params);
 
   c10::intrusive_ptr<MeshIntegratorParams> get_mesh_integrator_params() const;
   void set_mesh_integrator_params(

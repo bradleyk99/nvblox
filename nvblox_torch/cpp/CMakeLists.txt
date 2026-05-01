@@ -25,6 +25,7 @@ add_nvblox_shared_library(
   SOURCE_FILES
   src/py_nvblox.cu
   src/py_mapper.cu
+  src/py_multi_mapper.cu
   src/py_scene.cu
   src/py_sensor.cu
   src/convert_tensors.cpp

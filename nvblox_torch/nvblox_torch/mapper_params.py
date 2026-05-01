@@ -65,6 +65,16 @@ class ProjectiveIntegratorParams(NvbloxParameterClass):
             self._c_params = c_params
         self.wrap_getter_and_setters(ProjectiveIntegratorParams, self._c_params)
 
+class FreespaceIntegratorParams(NvbloxParameterClass):
+    """Parameters governing the freespace integrator (Dynablox-style dynamic detection)."""
+
+    def __init__(self, c_params: Optional[object] = None) -> None:
+        """Construct from C++ object."""
+        if c_params is None:
+            self._c_params = get_nvblox_torch_class('FreespaceIntegratorParams')()
+        else:
+            self._c_params = c_params
+        self.wrap_getter_and_setters(FreespaceIntegratorParams, self._c_params)
 
 class MeshIntegratorParams(NvbloxParameterClass):
     """Parameters governing the mesh integrator."""
@@ -169,6 +179,14 @@ class MapperParams:
     def set_projective_integrator_params(self, params: ProjectiveIntegratorParams) -> None:
         """Parameter setter."""
         return self._c_params.set_projective_integrator_params(params._c_params)
+
+    def get_freespace_integrator_params(self) -> FreespaceIntegratorParams:
+        """Parameter getter."""
+        return FreespaceIntegratorParams(self._c_params.get_freespace_integrator_params())
+
+    def set_freespace_integrator_params(self, params: FreespaceIntegratorParams) -> None:
+        """Parameter setter."""
+        return self._c_params.set_freespace_integrator_params(params._c_params)
 
     def get_mesh_integrator_params(self) -> MeshIntegratorParams:
         """Parameter getter."""
