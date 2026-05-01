@@ -1,3 +1,6 @@
+# Modifications
+I have modified the nvblox_torch wrapper to include access to multimapper C++ class for dynamic layer separation and decay
+
 # `nvblox`
 
 `nvblox` is a library for real-time 3D reconstruction, designed for
