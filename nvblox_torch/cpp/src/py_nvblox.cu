@@ -443,13 +443,15 @@ m.class_<MultiMapper>("MultiMapper")
 .def("integrate_depth", &MultiMapper::integrateDepth)
 .def("integrate_color", &MultiMapper::integrateColor)
 .def("update_esdf", &MultiMapper::updateEsdf)
+.def("update_freespace", &MultiMapper::updateFreespace)
 .def("update_color_mesh", &MultiMapper::updateColorMesh)
 .def("decay_dynamic_occupancy", &MultiMapper::decayDynamicOccupancy)
 .def("decay_static_tsdf", &MultiMapper::decayStaticTsdf)
 .def("query_static_esdf", &MultiMapper::queryStaticEsdf)
 .def("query_dynamic_occupancy", &MultiMapper::queryDynamicOccupancy)
 .def("tsdf_layer", &MultiMapper::tsdf_layer)
-.def("color_layer", &MultiMapper::color_layer);
+.def("color_layer", &MultiMapper::color_layer)
+.def("set_foreground_mapper_params", &MultiMapper::setForegroundMapperParams);
 }
 
 }  // namespace pynvblox

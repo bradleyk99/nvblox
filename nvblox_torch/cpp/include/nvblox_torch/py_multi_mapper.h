@@ -80,6 +80,15 @@ struct MultiMapper : torch::CustomClassHolder {
   /// Update the ESDF on both mappers as appropriate for the mapping type.
   void updateEsdf();
 
+  void setForegroundMapperParams(c10::intrusive_ptr<MapperParams> params);
+
+  /// Update the background mapper's freespace layer. Required for dynamic
+  /// detection in mapping_type "dynamic" — without this the freespace layer
+  /// stays empty and nothing is ever classified dynamic.
+  /// @param update_time_ms Current time in milliseconds. Pass the same value
+  ///        you passed to integrateDepth this frame.
+  void updateFreespace(int64_t update_time_ms);
+
   /// Update the color mesh of the background mapper.
   void updateColorMesh();
 

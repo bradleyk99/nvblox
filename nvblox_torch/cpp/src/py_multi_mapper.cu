@@ -71,17 +71,42 @@ MultiMapper::MultiMapper(
   multi_mapper_->setMultiMapperParams(*multi_mapper_params->params_);
 }
 
-// Legacy ctor — delegates with default-constructed foreground / multi params.
+void MultiMapper::setForegroundMapperParams(
+    c10::intrusive_ptr<MapperParams> params) {
+  multi_mapper_->foreground_mapper()->setMapperParams(*params->params_);
+  foreground_mapper_params_ = params;
+}
+
+// Legacy ctor — explicit body matching pre-patch wrapper behaviour.
+// Does NOT call setMapperParams's two-arg form (foreground stays at its
+// constructor-time defaults) and does NOT call setMultiMapperParams.
 MultiMapper::MultiMapper(
     double voxel_size_m, std::string mapping_type, std::string esdf_mode,
-    c10::intrusive_ptr<MapperParams> background_mapper_params)
-    : MultiMapper(voxel_size_m, std::move(mapping_type), std::move(esdf_mode),
-                  background_mapper_params,
-                  c10::make_intrusive<MapperParams>(),
-                  c10::make_intrusive<MultiMapperParams>()) {}
+    c10::intrusive_ptr<MapperParams> background_mapper_params) {
+  voxel_size_m_ = voxel_size_m;
+  mapping_type_str_ = mapping_type;
+  esdf_mode_str_ = esdf_mode;
+  background_mapper_params_ = background_mapper_params;
+  foreground_mapper_params_ = c10::make_intrusive<MapperParams>();
+  multi_mapper_params_ = c10::make_intrusive<MultiMapperParams>();
+
+  const nvblox::MappingType mt = mappingTypeFromString(mapping_type);
+  const nvblox::EsdfMode em = esdfModeFromString(esdf_mode);
+
+  multi_mapper_ = std::make_shared<nvblox::MultiMapper>(
+      static_cast<float>(voxel_size_m), mt, em, nvblox::MemoryType::kDevice);
+
+  multi_mapper_->setMapperParams(*background_mapper_params->params_);
+}
 
 void MultiMapper::updateEsdf() {
   multi_mapper_->updateEsdf();
+}
+
+void MultiMapper::updateFreespace(int64_t update_time_ms) {
+  multi_mapper_->background_mapper()->updateFreespace(
+      static_cast<nvblox::Time>(update_time_ms),
+      nvblox::UpdateFullLayer::kNo);
 }
 
 void MultiMapper::updateColorMesh() {
