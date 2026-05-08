@@ -17,6 +17,7 @@
 #include <torch/script.h>
 
 #include <nvblox/mapper/mapper_params.h>
+#include <nvblox/nvblox.h>
 
 namespace pynvblox {
 
@@ -97,6 +98,20 @@ struct FreespaceIntegratorParams : torch::CustomClassHolder {
   void set_min_consecutive_occupancy_duration_for_reset_ms(int64_t value) {
     params_->min_consecutive_occupancy_duration_for_reset_ms =
         static_cast<nvblox::Time>(value);
+  }
+
+  bool get_check_neighborhood() const {
+    return params_->check_neighborhood;
+  }
+  void set_check_neighborhood(bool value) {
+    params_->check_neighborhood = value;
+  }
+
+  bool get_initialize_to_high_confidence_freespace() const {
+    return params_->initialize_to_high_confidence_freespace;
+  }
+  void set_initialize_to_high_confidence_freespace(bool value) {
+    params_->initialize_to_high_confidence_freespace = value;
   }
 
   std::shared_ptr<nvblox::FreespaceIntegratorParams> params_;
@@ -255,6 +270,65 @@ struct BlockMemoryPoolParams : torch::CustomClassHolder {
   void set_expansion_factor(double value) const;
 
   std::shared_ptr<nvblox::BlockMemoryPoolParams> params_;
+};
+
+struct GroundPlaneEstimatorParams : torch::CustomClassHolder {
+  GroundPlaneEstimatorParams()
+      : params_(std::make_shared<nvblox::GroundPlaneEstimatorParams>()) {}
+  GroundPlaneEstimatorParams(const nvblox::GroundPlaneEstimatorParams params)
+      : params_(std::make_shared<nvblox::GroundPlaneEstimatorParams>(params)) {}
+
+  double get_ground_points_candidates_min_z_m() const;
+  void set_ground_points_candidates_min_z_m(double value) const;
+
+  double get_ground_points_candidates_max_z_m() const;
+  void set_ground_points_candidates_max_z_m(double value) const;
+
+  std::shared_ptr<nvblox::GroundPlaneEstimatorParams> params_;
+};
+
+struct RansacPlaneFitterParams : torch::CustomClassHolder {
+  RansacPlaneFitterParams()
+      : params_(std::make_shared<nvblox::RansacPlaneFitterParams>()) {}
+  RansacPlaneFitterParams(const nvblox::RansacPlaneFitterParams params)
+      : params_(std::make_shared<nvblox::RansacPlaneFitterParams>(params)) {}
+
+  double get_ransac_distance_threshold_m() const;
+  void set_ransac_distance_threshold_m(double value) const;
+
+  int64_t get_num_ransac_iterations() const;
+  void set_num_ransac_iterations(int64_t value) const;
+
+  std::shared_ptr<nvblox::RansacPlaneFitterParams> params_;
+};
+
+struct MultiMapperParams : torch::CustomClassHolder {
+  MultiMapperParams()
+      : params_(std::make_shared<nvblox::MultiMapperParams>()) {}
+
+  // Connected-components / mask preprocessing
+  int64_t get_connected_mask_component_size_threshold() const;
+  void set_connected_mask_component_size_threshold(int64_t value) const;
+
+  bool get_remove_small_connected_components() const;
+  void set_remove_small_connected_components(bool value) const;
+
+  // Ground-plane estimation switch
+  bool get_experimental_use_ground_plane_estimation() const;
+  void set_experimental_use_ground_plane_estimation(bool value) const;
+
+  // Sub-param accessors (composed structs)
+  c10::intrusive_ptr<GroundPlaneEstimatorParams>
+      get_ground_plane_estimator_params() const;
+  void set_ground_plane_estimator_params(
+      c10::intrusive_ptr<GroundPlaneEstimatorParams> params);
+
+  c10::intrusive_ptr<RansacPlaneFitterParams>
+      get_ransac_plane_fitter_params() const;
+  void set_ransac_plane_fitter_params(
+      c10::intrusive_ptr<RansacPlaneFitterParams> params);
+
+  std::shared_ptr<nvblox::MultiMapperParams> params_;
 };
 
 struct MapperParams : torch::CustomClassHolder {

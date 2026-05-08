@@ -159,6 +159,78 @@ class BlockMemoryPoolParams(NvbloxParameterClass):
             self._c_params = c_params
         self.wrap_getter_and_setters(BlockMemoryPoolParams, self._c_params)
 
+class GroundPlaneEstimatorParams(NvbloxParameterClass):
+    """Parameters governing the ground-plane estimator candidate band."""
+
+    def __init__(self, c_params: Optional[object] = None) -> None:
+        if c_params is None:
+            self._c_params = get_nvblox_torch_class('GroundPlaneEstimatorParams')()
+        else:
+            self._c_params = c_params
+        self.wrap_getter_and_setters(GroundPlaneEstimatorParams, self._c_params)
+
+
+class RansacPlaneFitterParams(NvbloxParameterClass):
+    """Parameters governing RANSAC ground-plane fitting."""
+
+    def __init__(self, c_params: Optional[object] = None) -> None:
+        if c_params is None:
+            self._c_params = get_nvblox_torch_class('RansacPlaneFitterParams')()
+        else:
+            self._c_params = c_params
+        self.wrap_getter_and_setters(RansacPlaneFitterParams, self._c_params)
+
+
+class MultiMapperParams:
+    """MultiMapperParams wraps the C++ MultiMapperParams class."""
+
+    def __init__(self, c_params: Optional[object] = None) -> None:
+        if c_params is None:
+            self._c_params = get_nvblox_torch_class('MultiMapperParams')()
+        else:
+            self._c_params = c_params
+
+    # Scalar fields (manual property-style access, matching MapperParams)
+    @property
+    def connected_mask_component_size_threshold(self) -> int:
+        return self._c_params.get_connected_mask_component_size_threshold()
+
+    @connected_mask_component_size_threshold.setter
+    def connected_mask_component_size_threshold(self, value: int) -> None:
+        self._c_params.set_connected_mask_component_size_threshold(value)
+
+    @property
+    def remove_small_connected_components(self) -> bool:
+        return self._c_params.get_remove_small_connected_components()
+
+    @remove_small_connected_components.setter
+    def remove_small_connected_components(self, value: bool) -> None:
+        self._c_params.set_remove_small_connected_components(value)
+
+    @property
+    def experimental_use_ground_plane_estimation(self) -> bool:
+        return self._c_params.get_experimental_use_ground_plane_estimation()
+
+    @experimental_use_ground_plane_estimation.setter
+    def experimental_use_ground_plane_estimation(self, value: bool) -> None:
+        self._c_params.set_experimental_use_ground_plane_estimation(value)
+
+    # Composed sub-params (get/set round-trip pattern, matching MapperParams)
+    def get_ground_plane_estimator_params(self) -> GroundPlaneEstimatorParams:
+        return GroundPlaneEstimatorParams(
+            self._c_params.get_ground_plane_estimator_params())
+
+    def set_ground_plane_estimator_params(
+            self, params: GroundPlaneEstimatorParams) -> None:
+        return self._c_params.set_ground_plane_estimator_params(params._c_params)
+
+    def get_ransac_plane_fitter_params(self) -> RansacPlaneFitterParams:
+        return RansacPlaneFitterParams(
+            self._c_params.get_ransac_plane_fitter_params())
+
+    def set_ransac_plane_fitter_params(
+            self, params: RansacPlaneFitterParams) -> None:
+        return self._c_params.set_ransac_plane_fitter_params(params._c_params)
 
 class MapperParams:
     """MapperParams is a class that wraps the C++ MapperParams class."""

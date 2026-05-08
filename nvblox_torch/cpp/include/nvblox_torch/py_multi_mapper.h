@@ -40,9 +40,24 @@ struct MultiMapper : torch::CustomClassHolder {
   ///        freespace-consistency dynamic detection.
   /// @param esdf_mode One of: "3D", "2D".
   /// @param mapper_params Parameter struct, applied to the background mapper.
+  /// Legacy single-MapperParams constructor. Foreground mapper params and
+  /// MultiMapperParams default-construct. Kept for backward compatibility.
   MultiMapper(double voxel_size_m, std::string mapping_type,
               std::string esdf_mode,
-              c10::intrusive_ptr<MapperParams> mapper_params);
+              c10::intrusive_ptr<MapperParams> background_mapper_params);
+
+  /// Full constructor matching the isaac_ros_nvblox usage pattern.
+  /// @param background_mapper_params Params for the static (background) mapper.
+  /// @param foreground_mapper_params Params for the dynamic (foreground)
+  ///        mapper. For mapping_type "static_tsdf" / "static_occupancy" the
+  ///        foreground mapper is inactive and these are unused.
+  /// @param multi_mapper_params Multi-mapper-level params (mask connected
+  ///        components, ground plane estimation, RANSAC).
+  MultiMapper(double voxel_size_m, std::string mapping_type,
+              std::string esdf_mode,
+              c10::intrusive_ptr<MapperParams> background_mapper_params,
+              c10::intrusive_ptr<MapperParams> foreground_mapper_params,
+              c10::intrusive_ptr<MultiMapperParams> multi_mapper_params);
 
   ~MultiMapper() = default;
 
@@ -108,7 +123,9 @@ struct MultiMapper : torch::CustomClassHolder {
   double voxel_size_m_;
   std::string mapping_type_str_;
   std::string esdf_mode_str_;
-  c10::intrusive_ptr<MapperParams> mapper_params_;
+  c10::intrusive_ptr<MapperParams> background_mapper_params_;
+  c10::intrusive_ptr<MapperParams> foreground_mapper_params_;
+  c10::intrusive_ptr<MultiMapperParams> multi_mapper_params_;
 };
 
 }  // namespace pynvblox

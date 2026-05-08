@@ -42,27 +42,43 @@ nvblox::EsdfMode MultiMapper::esdfModeFromString(const std::string& s) {
   return nvblox::EsdfMode::kUnset;  // unreachable
 }
 
-MultiMapper::MultiMapper(double voxel_size_m, std::string mapping_type,
-                         std::string esdf_mode,
-                         c10::intrusive_ptr<MapperParams> mapper_params) {
+MultiMapper::MultiMapper(
+    double voxel_size_m, std::string mapping_type, std::string esdf_mode,
+    c10::intrusive_ptr<MapperParams> background_mapper_params,
+    c10::intrusive_ptr<MapperParams> foreground_mapper_params,
+    c10::intrusive_ptr<MultiMapperParams> multi_mapper_params) {
   voxel_size_m_ = voxel_size_m;
   mapping_type_str_ = mapping_type;
   esdf_mode_str_ = esdf_mode;
-  mapper_params_ = mapper_params;
+  background_mapper_params_ = background_mapper_params;
+  foreground_mapper_params_ = foreground_mapper_params;
+  multi_mapper_params_ = multi_mapper_params;
 
   const nvblox::MappingType mt = mappingTypeFromString(mapping_type);
   const nvblox::EsdfMode em = esdfModeFromString(esdf_mode);
 
-  // Construct the underlying nvblox MultiMapper.
-  // MemoryType::kDevice is the only sensible choice for GPU mapping;
-  // the underlying MultiMapper allocates its own CudaStream.
   multi_mapper_ = std::make_shared<nvblox::MultiMapper>(
       static_cast<float>(voxel_size_m), mt, em, nvblox::MemoryType::kDevice);
 
-  // Apply user-supplied mapper params to the background mapper.
-  // Foreground mapper uses defaults for now.
-  multi_mapper_->setMapperParams(*mapper_params->params_);
+  // Apply per-mapper params to BOTH background and foreground mappers.
+  // Mirrors isaac_ros_nvblox::initializeMultiMapper().
+  multi_mapper_->setMapperParams(*background_mapper_params->params_,
+                                 *foreground_mapper_params->params_);
+
+  // Apply MultiMapper-level params (connected components, ground plane,
+  // RANSAC). The freespace integrator params live on the per-Mapper
+  // MapperParams and are applied by the call above.
+  multi_mapper_->setMultiMapperParams(*multi_mapper_params->params_);
 }
+
+// Legacy ctor — delegates with default-constructed foreground / multi params.
+MultiMapper::MultiMapper(
+    double voxel_size_m, std::string mapping_type, std::string esdf_mode,
+    c10::intrusive_ptr<MapperParams> background_mapper_params)
+    : MultiMapper(voxel_size_m, std::move(mapping_type), std::move(esdf_mode),
+                  background_mapper_params,
+                  c10::make_intrusive<MapperParams>(),
+                  c10::make_intrusive<MultiMapperParams>()) {}
 
 void MultiMapper::updateEsdf() {
   multi_mapper_->updateEsdf();

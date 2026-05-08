@@ -22,7 +22,7 @@ nvblox::WeightingFunctionType weighting_function_type_from_string(
     return nvblox::WeightingFunctionType::kInverseSquareWeight;
   } else if (fn_string == "kInverseSquareDropoffWeight") {
     return nvblox::WeightingFunctionType::kInverseSquareDropoffWeight;
-  } else if ("kInverseSquareTsdfDistancePenalty") {
+  } else if (fn_string == "kInverseSquareTsdfDistancePenalty") {
     return nvblox::WeightingFunctionType::kInverseSquareTsdfDistancePenalty;
   } else if (fn_string == "kLinearWithMax") {
     return nvblox::WeightingFunctionType::kLinearWithMax;
@@ -481,6 +481,99 @@ MapperParams::get_block_memory_pool_params() const {
 void MapperParams::set_block_memory_pool_params(
     c10::intrusive_ptr<BlockMemoryPoolParams> params) {
   block_memory_pool_params_ = params->params_;
+}
+
+
+/*****************************
+ * GROUND PLANE ESTIMATOR PARAMS
+ ******************************/
+
+double GroundPlaneEstimatorParams::get_ground_points_candidates_min_z_m()
+    const {
+  return static_cast<double>(params_->ground_points_candidates_min_z_m);
+}
+void GroundPlaneEstimatorParams::set_ground_points_candidates_min_z_m(
+    double value) const {
+  params_->ground_points_candidates_min_z_m = static_cast<float>(value);
+}
+
+double GroundPlaneEstimatorParams::get_ground_points_candidates_max_z_m()
+    const {
+  return static_cast<double>(params_->ground_points_candidates_max_z_m);
+}
+void GroundPlaneEstimatorParams::set_ground_points_candidates_max_z_m(
+    double value) const {
+  params_->ground_points_candidates_max_z_m = static_cast<float>(value);
+}
+
+/*****************************
+ * RANSAC PLANE FITTER PARAMS
+ ******************************/
+
+double RansacPlaneFitterParams::get_ransac_distance_threshold_m() const {
+  return static_cast<double>(params_->ransac_distance_threshold_m);
+}
+void RansacPlaneFitterParams::set_ransac_distance_threshold_m(
+    double value) const {
+  params_->ransac_distance_threshold_m = static_cast<float>(value);
+}
+
+int64_t RansacPlaneFitterParams::get_num_ransac_iterations() const {
+  return static_cast<int64_t>(params_->num_ransac_iterations);
+}
+void RansacPlaneFitterParams::set_num_ransac_iterations(int64_t value) const {
+  params_->num_ransac_iterations = static_cast<int>(value);
+}
+
+/*****************************
+ * MULTI MAPPER PARAMS
+ ******************************/
+
+int64_t MultiMapperParams::get_connected_mask_component_size_threshold()
+    const {
+  return static_cast<int64_t>(params_->connected_mask_component_size_threshold);
+}
+void MultiMapperParams::set_connected_mask_component_size_threshold(
+    int64_t value) const {
+  params_->connected_mask_component_size_threshold = static_cast<int>(value);
+}
+
+bool MultiMapperParams::get_remove_small_connected_components() const {
+  return params_->remove_small_connected_components;
+}
+void MultiMapperParams::set_remove_small_connected_components(
+    bool value) const {
+  params_->remove_small_connected_components = value;
+}
+
+bool MultiMapperParams::get_experimental_use_ground_plane_estimation() const {
+  return params_->experimental_use_ground_plane_estimation;
+}
+void MultiMapperParams::set_experimental_use_ground_plane_estimation(
+    bool value) const {
+  params_->experimental_use_ground_plane_estimation = value;
+}
+
+c10::intrusive_ptr<GroundPlaneEstimatorParams>
+MultiMapperParams::get_ground_plane_estimator_params() const {
+  return c10::make_intrusive<GroundPlaneEstimatorParams>(
+      params_->ground_plane_estimator_params);
+}
+
+void MultiMapperParams::set_ground_plane_estimator_params(
+    c10::intrusive_ptr<GroundPlaneEstimatorParams> params) {
+  params_->ground_plane_estimator_params = *params->params_;
+}
+
+c10::intrusive_ptr<RansacPlaneFitterParams>
+MultiMapperParams::get_ransac_plane_fitter_params() const {
+  return c10::make_intrusive<RansacPlaneFitterParams>(
+      params_->ransac_plane_fitter_params);
+}
+
+void MultiMapperParams::set_ransac_plane_fitter_params(
+    c10::intrusive_ptr<RansacPlaneFitterParams> params) {
+  params_->ransac_plane_fitter_params = *params->params_;
 }
 
 }  // namespace pynvblox

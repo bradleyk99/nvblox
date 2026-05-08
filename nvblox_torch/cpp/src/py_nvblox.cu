@@ -140,7 +140,18 @@ m.class_<FreespaceIntegratorParams>("FreespaceIntegratorParams")
                get_min_consecutive_occupancy_duration_for_reset_ms)
       .def("set_min_consecutive_occupancy_duration_for_reset_ms",
            &FreespaceIntegratorParams::
-               set_min_consecutive_occupancy_duration_for_reset_ms);
+               set_min_consecutive_occupancy_duration_for_reset_ms)
+      .def("get_check_neighborhood",
+           &FreespaceIntegratorParams::get_check_neighborhood)
+      .def("set_check_neighborhood",
+           &FreespaceIntegratorParams::set_check_neighborhood)
+      .def("get_initialize_to_high_confidence_freespace",
+           &FreespaceIntegratorParams::
+               get_initialize_to_high_confidence_freespace)
+      .def("set_initialize_to_high_confidence_freespace",
+           &FreespaceIntegratorParams::
+               set_initialize_to_high_confidence_freespace);    
+
 
   m.class_<MeshIntegratorParams>("MeshIntegratorParams")
       .def(torch::init())
@@ -277,6 +288,51 @@ m.class_<FreespaceIntegratorParams>("FreespaceIntegratorParams")
       .def("get_expansion_factor", &BlockMemoryPoolParams::get_expansion_factor)
       .def("set_expansion_factor",
            &BlockMemoryPoolParams::set_expansion_factor);
+
+  m.class_<GroundPlaneEstimatorParams>("GroundPlaneEstimatorParams")
+      .def(torch::init())
+      .def("get_ground_points_candidates_min_z_m",
+           &GroundPlaneEstimatorParams::get_ground_points_candidates_min_z_m)
+      .def("set_ground_points_candidates_min_z_m",
+           &GroundPlaneEstimatorParams::set_ground_points_candidates_min_z_m)
+      .def("get_ground_points_candidates_max_z_m",
+           &GroundPlaneEstimatorParams::get_ground_points_candidates_max_z_m)
+      .def("set_ground_points_candidates_max_z_m",
+           &GroundPlaneEstimatorParams::set_ground_points_candidates_max_z_m);
+
+  m.class_<RansacPlaneFitterParams>("RansacPlaneFitterParams")
+      .def(torch::init())
+      .def("get_ransac_distance_threshold_m",
+           &RansacPlaneFitterParams::get_ransac_distance_threshold_m)
+      .def("set_ransac_distance_threshold_m",
+           &RansacPlaneFitterParams::set_ransac_distance_threshold_m)
+      .def("get_num_ransac_iterations",
+           &RansacPlaneFitterParams::get_num_ransac_iterations)
+      .def("set_num_ransac_iterations",
+           &RansacPlaneFitterParams::set_num_ransac_iterations);
+
+  m.class_<MultiMapperParams>("MultiMapperParams")
+      .def(torch::init())
+      .def("get_connected_mask_component_size_threshold",
+           &MultiMapperParams::get_connected_mask_component_size_threshold)
+      .def("set_connected_mask_component_size_threshold",
+           &MultiMapperParams::set_connected_mask_component_size_threshold)
+      .def("get_remove_small_connected_components",
+           &MultiMapperParams::get_remove_small_connected_components)
+      .def("set_remove_small_connected_components",
+           &MultiMapperParams::set_remove_small_connected_components)
+      .def("get_experimental_use_ground_plane_estimation",
+           &MultiMapperParams::get_experimental_use_ground_plane_estimation)
+      .def("set_experimental_use_ground_plane_estimation",
+           &MultiMapperParams::set_experimental_use_ground_plane_estimation)
+      .def("get_ground_plane_estimator_params",
+           &MultiMapperParams::get_ground_plane_estimator_params)
+      .def("set_ground_plane_estimator_params",
+           &MultiMapperParams::set_ground_plane_estimator_params)
+      .def("get_ransac_plane_fitter_params",
+           &MultiMapperParams::get_ransac_plane_fitter_params)
+      .def("set_ransac_plane_fitter_params",
+           &MultiMapperParams::set_ransac_plane_fitter_params);
 
   m.class_<MapperParams>("MapperParams")
       .def(torch::init())
